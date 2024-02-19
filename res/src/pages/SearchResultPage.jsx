@@ -1,4 +1,5 @@
 function SearchResultPage() {
+
     return (
         <div>
 
@@ -6,4 +7,4 @@ function SearchResultPage() {
     )
 }
 
-export default SearchResultPage;
+export default SearchResultPage
