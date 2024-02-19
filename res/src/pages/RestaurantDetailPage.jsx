@@ -1,45 +1,51 @@
-import { useParams } from "react-router-dom";
-import data from "../assets/data/restaurants_list.json"
 import axios from "axios";
-
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 function RestaurantDetailPage() {
-
-    const {id} = useParams();
-
-    const restaurant = data.find((rest) => {
-        return rest.id == id})
-
-        /*function handleSubmit(event) {
-            event.preventDefault();
-          
-            axios.post(`${API_URL}/projects`, project)
-            .then(()=> navigate("/projects"))
-            .catch((error)=> console.log(error));
-          }
-          
-          const form = document.querySelector('form');
-          form.addEventListener('submit', handleSubmit);   */ 
+    const [restaurantDetails, setRestaurantDetails] = useState(null);
+    const API_URL = "http://localhost:5000";
+    const { id } = useParams();
+    const navigate = useNavigate();
 
 
+    
+    const deleteProject = () =>{
+        axios.delete(`${API_URL}/restaurants/${id}` ).then(()=>{
+            navigate("/restaurants");
+        })
+        .catch((error)=>console.log(error));
+    }
+
+    useEffect(() => {
+        axios.get(`${API_URL}/restaurants/${id}`)
+            .then((response) => {  
+                setRestaurantDetails(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [id]);
+    
     return (
-        <div key={restaurant.id}>
-            <h1>{restaurant.name}</h1>
-            <p>{restaurant.description}</p>
-            <p>{restaurant.price_range}</p>
-            <p>{restaurant.ratings}</p>
-            <p>Location: {restaurant.area}</p>
-            <form action="">
-            <label>Write a Review</label>
-            <input type="text" name="review" id="review"></input>
-            <button type="submit" value={restaurant.reviews_written}>Submit Review</button>
-            </form>
+        <div> 
+            {restaurantDetails !== null && (
+                <div>
+                    <h1>{restaurantDetails.name}</h1>
+                    <p>{restaurantDetails.description}</p>
+                    <p>{restaurantDetails.price_range}</p>
+                    <p>{restaurantDetails.ratings}</p>
+                    <p>Location: {restaurantDetails.area}</p>
+                    <button onClick={deleteProject}>Delete Project</button>
+                    <form action="">
+                        <label>Write a Review</label>
+                        <input type="text" name="review" id="review"></input>
+                        <button type="submit" value={restaurantDetails.reviews_written}>Submit Review</button>
+                    </form>
+                </div>
+            )}
         </div>
     )
 }
-
-
-
-
 
 export default RestaurantDetailPage;
