@@ -1,14 +1,24 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Review from "../components/Review";
 
 function RestaurantDetailPage() {
     const [restaurantDetails, setRestaurantDetails] = useState(null);
     const API_URL = "http://localhost:5000";
-    const { id } = useParams();
     const navigate = useNavigate();
+    const {id} = useParams();
 
-
+    const getRestaurant = () => {
+        axios
+          .get(`${API_URL}/restaurants/${id}`)
+          .then((response) => {
+            const oneRestaurant = response.data;
+            setRestaurantDetails(oneRestaurant);
+          })
+          .catch((error) => console.log(error));
+      };
+      
     
     const deleteProject = () =>{
         axios.delete(`${API_URL}/restaurants/${id}` ).then(()=>{
@@ -18,17 +28,11 @@ function RestaurantDetailPage() {
     }
 
     useEffect(() => {
-        axios.get(`${API_URL}/restaurants/${id}`)
-            .then((response) => {  
-                setRestaurantDetails(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }, [id]);
-    
+        getRestaurant(); 
+    }, []);
+
     return (
-        <div> 
+        <div>
             {restaurantDetails !== null && (
                 <div>
                     <h1>{restaurantDetails.name}</h1>
@@ -37,15 +41,19 @@ function RestaurantDetailPage() {
                     <p>{restaurantDetails.ratings}</p>
                     <p>Location: {restaurantDetails.area}</p>
                     <button onClick={deleteProject}>Delete Project</button>
-                    <form action="">
-                        <label>Write a Review</label>
-                        <input type="text" name="review" id="review"></input>
-                        <button type="submit" value={restaurantDetails.reviews_written}>Submit Review</button>
-                    </form>
+                    <Review refreshRestaurant={getRestaurant} id={id} setRestaurantDetails = {setRestaurantDetails} restaurantDetails = {restaurantDetails} />
+                    {restaurantDetails.reviews && restaurantDetails.reviews.map((review, i) => (
+                        <div  key={i}>
+                            <h4>{review.username}</h4>
+                            <h4>Review: </h4>
+                            <p>{review.userReview}</p>
+                        </div>
+                    ))}
+ 
                 </div>
             )}
         </div>
-    )
-}
+    );
+}    
 
 export default RestaurantDetailPage;
